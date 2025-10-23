@@ -34,6 +34,7 @@ An open-source Discord bot to control a Minecraft server.
         * Optional but highly recommended
     * Minecraft server executable path
         * Optional but /start_server won't work
+        * **WARNING:** This can be set to open ANY program on your machine. Set this with caution.
 2. Invite your bot to your primary Discord server and run `/set_http_server` on Discord
     * The HTTP server is **NOT** your Minecraft IP. CommandBlock should have printed the address to your Minecraft server's log. The default is `http://127.0.0.1:25580`. If the Minecraft server and Discord bot are running on two separate machines, you may need to configure your firewall.
     * You will need to be an administrator in your server to run this command. If you're not an admin, get one to run `/add_role` with the ID of a role you want to have permission to run CommandBlock's admin commands.
@@ -55,7 +56,6 @@ An open-source Discord bot to control a Minecraft server.
 | `/kick_player` | Kicks a player from the minecraft server | Admin
 | `/set_http_server` | Sets the CommandBlock HTTP server to communicate to | Admin
 | `/set_mc_server` | Sets the IP the bot will display to users on Discord<br>This is **only** for display purposes | Admin
-| `/set_server_program_path` | Sets the path to the Minecraft server executable so it can be started with `/start_server`<br>**WARNING:** This can be set to open ANY program on your machine. Set this with caution. | Admin
 | `/start_server` | Starts the Minecraft server | Admin
 | `/stop_server` | Gracefully stops the Minecraft server | Admin
 | `/whitelist_player` | Adds a player to the Minecraft server's whitelist | Admin
