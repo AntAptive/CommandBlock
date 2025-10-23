@@ -1,0 +1,15 @@
+name: CommandBlock
+version: '1.0.0'
+main: com.antaptive.commandBlock.CommandBlock
+api-version: '1.21'
+authors: [ AntAptive ]
+description: A administrative server plugin for Discord
+website: https://antaptive.com
+softdepend: [Essentials]
+
+commands:
+  restarthttpserver:
+    description: Restarts the CommandBlock HTTP server
+    usage: /<command>
+    permission: commandblock.restarthttpserver
+    permission-message: You don't have permission to use this command.

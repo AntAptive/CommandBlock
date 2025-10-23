@@ -1,0 +1,11 @@
+# API token for authentication (change this!)
+# Think of this as a password. Change it to whatever you want.
+# Choose something VERY secure. Anyone with this token can ban, kick, or whitelist any player!
+# The Discord bot will need this same token.
+api-token: "your-secret-token-here"
+
+# Port for the plugin to listen on for the Discord bot
+port: 25580
+
+# Bind address (127.0.0.1 for local only, 0.0.0.0 for all interfaces)
+bind-address: "127.0.0.1"
