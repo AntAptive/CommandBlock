@@ -21,7 +21,9 @@ namespace CommandBlock
         public string serverExecutablePath { get; set; } = "";
 
         public string serverAPIToken { get; set; } = "";
-        public string ?botToken { get; set; }
+        public string botToken { get; set; } = "";
+
+        public ulong loggingChannelId { get; set; } = 0;
 
         internal static Config CurrentConfig { get; private set; }
 
@@ -44,15 +46,18 @@ namespace CommandBlock
 
         public static void AskForExecutablePath(Config items)
         {
-            string filePath = AskForInput("Please enter the full path to your Minecraft server's executable. (Optional, but /start_server will not work)", true)
+            string filePath = AskForInput("Please enter the full path to your Minecraft server's executable. (Optional, but /start_server will not work)\nOr type \"ignore\" to never ask this again", true)
                     .Replace("\"", "");
-            items.serverExecutablePath = filePath;
 
-            if (!File.Exists(filePath) && !string.IsNullOrWhiteSpace(filePath))
+            // Check if the file exists. If the user entered "ignore", skip the check.
+            if (!File.Exists(filePath) && !string.IsNullOrWhiteSpace(filePath) && filePath.ToLower() != "ignore")
             {
                 PrintError("File does not exist at the specified path.");
                 AskForExecutablePath(items);
+                return;
             }
+
+            items.serverExecutablePath = filePath;
         }
 
         public static async Task<Config> LoadConfigAsync()
@@ -61,8 +66,7 @@ namespace CommandBlock
             string jsonFilePath = Path.Combine(exePath, "config.json");
 
             if (!File.Exists(jsonFilePath))
-            {
-                // Initial setup
+            { // Initial setup
                 PrintWarn("The config file \"config.json\" does not exist and one will be created in the same folder as the bot's executable.");
 
                 Config newConfig = new();
@@ -102,26 +106,31 @@ namespace CommandBlock
                     if (items.allowedGuilds.Count == 0)
                     {
                         items.allowedGuilds.Add(AskForInput("Please enter the ID of the primary server the bot will be in"));
-                        SaveConfig(items, jsonFilePath);
                     }
 
-                    if (items.botToken == null || string.IsNullOrWhiteSpace(items.botToken))
+                    if (string.IsNullOrWhiteSpace(items.botToken))
                     {
                         items.botToken = AskForInput("Please enter your Discord bot's token");
-                        SaveConfig(items, jsonFilePath);
                     }
 
-                    if (items.serverAPIToken == null || string.IsNullOrWhiteSpace(items.serverAPIToken))
+                    if (string.IsNullOrWhiteSpace(items.serverAPIToken))
                     {
                         items.serverAPIToken = AskForInput("Please enter your CommandBlock plugin API token (set in your plugin's config.yml)");
-                        SaveConfig(items, jsonFilePath);
                     }
 
                     // This is optional but we still ask the user if it isn't set
-                    if (items.serverExecutablePath == null || string.IsNullOrWhiteSpace(items.serverExecutablePath))
+                    if (string.IsNullOrWhiteSpace(items.serverExecutablePath))
                     {
                         AskForExecutablePath(items);
                     }
+                    // If it's set, check if the file exists
+                    else if (!File.Exists(items.serverExecutablePath) && items.serverExecutablePath != "ignore")
+                    {
+                        PrintError("The Minecraft server executable path set in the config file does not exist.");
+                        AskForExecutablePath(items);
+                    }
+
+                    SaveConfig(items, jsonFilePath);
 
                     CurrentConfig = items;
                     return items;

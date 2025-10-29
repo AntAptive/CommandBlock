@@ -333,6 +333,8 @@ public final class CommandBlock extends JavaPlugin {
 
             });
 
+            // TODO: Force whitelist to work only if the user exists. Also, return the
+            // ACTUAL username of who got whitelisted.
             server.createContext("/server/player/whitelist/add", exchange -> {
                 // If the request doesn't have proper authentication
                 if (!handleAuth(exchange)) return;

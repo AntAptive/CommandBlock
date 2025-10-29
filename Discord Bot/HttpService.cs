@@ -54,7 +54,7 @@ namespace CommandBlock
             }
         }
 
-        internal static async Task<HttpResponse> SendGET(string callback, string token)
+        internal static async Task<HttpResponse> SendGET(string callback, string token, bool silent = false)
         {
             string url = Config.CurrentConfig.serverHTTPUrl + callback;
 
@@ -68,8 +68,11 @@ namespace CommandBlock
                     HttpResponseMessage response = await client.GetAsync(url); // no body
                     string result = await response.Content.ReadAsStringAsync();
 
-                    Print($"Status: {response.StatusCode}");
-                    Print($"Response: {result}");
+                    if (!silent)
+                    {
+                        Print($"Status: {response.StatusCode}");
+                        Print($"Response: {result}");
+                    }
 
                     return new HttpResponse
                     {
@@ -80,7 +83,9 @@ namespace CommandBlock
             }
             catch (HttpRequestException ex)
             {
-                PrintError($"A connection error occurred while sending an HTTP GET request: {ex.Message}");
+                if (!silent)
+                    PrintError($"A connection error occurred while sending an HTTP GET request: {ex.Message}");
+
                 return new HttpResponse()
                 {
                     status = HttpStatusCode.Forbidden,

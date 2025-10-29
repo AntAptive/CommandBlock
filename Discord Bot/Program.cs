@@ -13,7 +13,7 @@ namespace CommandBlock
 
         private delegate bool HandlerRoutine(int ctrlType);
 
-        private static string version = "1.0.0";
+        private static string version = "1.1.0";
 
         private static DiscordClientBuilder builder;
         private static DiscordClient client;
@@ -22,9 +22,10 @@ namespace CommandBlock
 
         private static bool isEscapePressed = false;
         private static DateTime lastEscapePress = DateTime.MinValue;
-
         private static bool isCPressed = false;
         private static DateTime lastCPress = DateTime.MinValue;
+        private static bool isRPressed = false;
+        private static DateTime lastRPress = DateTime.MinValue;
 
         private static bool lastEscapeKeyReady = false;
 
@@ -39,7 +40,8 @@ namespace CommandBlock
             PrintRaw($"Version {version}\n\n");
 
             PrintRaw("Press ESC twice quickly to shut down the bot. ");
-            PrintRaw("Press C twice quickly to clear the log.\n\n");
+            PrintRaw("Press C twice quickly to clear the log");
+            PrintRaw("Press R to change the server executable path.\n\n");
 
             Print("Loading config...");
 
@@ -70,13 +72,12 @@ namespace CommandBlock
                             try
                             {
                                 await e.Guild.LeaveAsync();
+                                PrintWarn($"Guild {e.Guild.Name} (ID: {e.Guild.Id}) is not in the allowedGuilds list and the bot left it successfully.");
                             }
                             catch (Exception ex)
                             {
-                                PrintError($"Guild {e.Guild.Name} ({e.Guild.Id}) is not in the allowedGuilds list and the bot failed to leave successfully.");
-                                return;
+                                PrintError($"Guild {e.Guild.Name} (ID: {e.Guild.Id}) is not in the allowedGuilds list and the bot failed to leave successfully.");
                             }
-                            PrintWarn($"Guild {e.Guild.Name} ({e.Guild.Id}) is not in the allowedGuilds list and the bot left it successfully.");
                         }
                     });
                 });
@@ -84,6 +85,7 @@ namespace CommandBlock
             // Setup the commands extension
             builder.UseCommands((IServiceProvider serviceProvider, CommandsExtension extension) =>
             {
+                // holy goliath
                 extension.AddCommands([
                     typeof(StartServer),
                     typeof(StopServer),
@@ -91,19 +93,23 @@ namespace CommandBlock
                     typeof(SetMcServer),
                     typeof(ServerStats),
                     typeof(AddGuild),
+                    typeof(RemoveGuild),
                     typeof(AddRole),
+                    typeof(RemoveRole),
+                    typeof(SetLoggingChannel),
+                    typeof(RemoveLoggingChannel),
                     typeof(KickPlayer),
                     typeof(BanPlayer),
                     typeof(UnbanPlayer),
                     typeof(WhitelistPlayer),
-                    typeof(UnwhitelistPlayer)
+                    typeof(UnwhitelistPlayer),
                     ]);
             });
 
             client = builder.Build();
             Print("Built Discord client.");
-
             Print("Connecting to Discord...");
+
             try
             {
                 await client.ConnectAsync();
@@ -132,8 +138,28 @@ namespace CommandBlock
                 }
             }
 
-
             Print("Connected.");
+
+            // Check if the bot is in any guilds it shouldn't be in
+            await foreach (var guild in client.GetGuildsAsync())
+            {
+                if (!config.allowedGuilds.Contains(guild.Id.ToString()))
+                {
+                    try
+                    {
+                        await guild.LeaveAsync();
+                        PrintWarn($"Guild {guild.Name} (ID: {guild.Id}) is not in the allowedGuilds list and the bot left it successfully.");
+                    }
+                    catch (Exception ex)
+                    {
+                        PrintError($"Guild {guild.Name} (ID: {guild.Id}) is not in the allowedGuilds list and the bot failed to leave successfully.");
+                    }
+                }
+                else
+                {
+                    Print($"Verified membership in allowed guild: {guild.Name} (ID: {guild.Id})");
+                }
+            }
 
             // Wait indefinitely
             await Task.Delay(-1);
@@ -164,7 +190,7 @@ namespace CommandBlock
                         {
                             PrintWarn("Shutting down CommandBlock Discord Bot...");
 
-                                await client.DisconnectAsync();
+                            await client.DisconnectAsync();
 
                             Print("CommandBlock Discord Bot has successfully shut down. Press ESC again to exit.");
                             lastEscapeKeyReady = true;
@@ -181,7 +207,29 @@ namespace CommandBlock
                         else if ((DateTime.Now - lastCPress).TotalSeconds <= 1)
                         {
                             Console.Clear();
+                            
+                            PrintRaw("Press ESC twice quickly to shut down the bot. ");
+                            PrintRaw("Press C twice quickly to clear the log");
+                            PrintRaw("Press R to change the server executable path.\n\n");
+
                             Print("Log has been cleared.");
+                        }
+                    }
+                    else if (key.Key == ConsoleKey.R)
+                    {
+                        if (!isRPressed)
+                        {
+                            isRPressed = true;
+                            lastRPress = DateTime.Now;
+                            PrintWarn("WARNING: This will temporarily take the bot offline! Press R again twice quickly to change the server executable path.");
+                        }
+                        else if ((DateTime.Now - lastRPress).TotalSeconds <= 1)
+                        {
+                            PrintWarn("Disconnecting from Discord...");
+                            await client.DisconnectAsync();
+                            Print("Bot disconnected.");
+                            Config.AskForExecutablePath(Config.CurrentConfig);
+                            await client.ConnectAsync();
                         }
                     }
                 }
@@ -195,6 +243,11 @@ namespace CommandBlock
                 if (isCPressed && (DateTime.Now - lastCPress).TotalSeconds > 1)
                 {
                     isCPressed = false;
+                }
+
+                if (isRPressed && (DateTime.Now - lastRPress).TotalSeconds > 1)
+                {
+                    isRPressed = false;
                 }
 
                 await Task.Delay(100); // Reduce CPU usage
