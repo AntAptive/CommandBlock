@@ -13,7 +13,7 @@ namespace CommandBlock
 
         private delegate bool HandlerRoutine(int ctrlType);
 
-        private static string version = "1.1.0";
+        private static string version = "1.1.1";
 
         private static DiscordClientBuilder builder;
         private static DiscordClient client;
