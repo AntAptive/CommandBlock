@@ -50,12 +50,16 @@ An open-source Discord bot to control a Minecraft server.
 |:---|:---|:---|
 | `/server_stats` | Gets the Minecraft's server's statistics, showing the server version, player list & count, uptime, and last TPS. <br>**NOTE:** If something is improperly configured, this command will show the server as "offline" when it may not be. All info will be sent to the Discord bot's log. | Everyone
 | `/add_guild` | Adds a guild ID to the list of allowed guilds/servers the bot can be in | Admin
+| `/remove_guild` | Removes a guild ID from the list of allowed guilds/servers the bot can be in | Admin
 | `/add_role` | Adds a role ID to the list of allowed roles for admin commands | Admin
+| `/remove_role` | Remove a role ID from the list of allowed roles for admin commands | Admin
 | `/ban_player` | Bans a player from the minecraft server | Admin
 | `/unban_player` | Unbans a player from the minecraft server | Admin
 | `/kick_player` | Kicks a player from the minecraft server | Admin
 | `/set_http_server` | Sets the CommandBlock HTTP server to communicate to | Admin
 | `/set_mc_server` | Sets the IP the bot will display to users on Discord<br>This is **only** for display purposes | Admin
+| `/set_logging_channel` | Sets the logging channel where important messages will be sent when commands are ran | Admin
+| `/remove_logging_channel` | Removes the logging channel and disables logging on Discord | Admin
 | `/start_server` | Starts the Minecraft server | Admin
 | `/stop_server` | Gracefully stops the Minecraft server | Admin
 | `/whitelist_player` | Adds a player to the Minecraft server's whitelist | Admin
