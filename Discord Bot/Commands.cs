@@ -536,7 +536,7 @@ namespace CommandBlock.Commands
                 await SendMessageToLogChannel(ctx,
                         $"Successfully started server!\n" +
                         $"Ran by: <@{ctx.User.Id}>",
-                        DiscordColor.Red);
+                        DiscordColor.Green);
             }
             // Server is already online
             else
